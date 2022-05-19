@@ -1,143 +1,195 @@
-<!Doctype html>
+<!doctype html>
 <html lang="ko">
 
 <head>
-    <!-- Required meta tags -->
-    <meta charset="utf-8">
+       <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
-          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
-          crossorigin="anonymous">
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 
-    <!-- JS -->
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
             integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
             crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+            integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+            crossorigin="anonymous"></script>
+    <title>숙제하기</title>
+    <link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
 
-    <!-- 구글폰트 -->
-    <link href="https://fonts.googleapis.com/css?family=Stylish&display=swap" rel="stylesheet">
-
-
-    <title>스파르타코딩클럽 | 나홀로 메모장</title>
-
-    <!-- style -->
-    <style type="text/css">
+    <style>
         * {
-            font-family: "Stylish", sans-serif;
+            font-family: 'Jua', sans-serif;
         }
 
-        .wrap {
-            width: 900px;
+        .mytitle {
+            background-image: url("https://image.yes24.com/goods/85632276/XL");
+            background-size: cover;
+            background-position: center;
+            width: 300px;
+            height: 200px;
+            padding-top: 20px;
             margin: auto;
         }
 
-        .comment {
-            color: blue;
-            font-weight: bold;
+        .sell {
+            width: 500px;
+            margin: auto;
         }
 
-        #post-box {
+        .img_text {
             width: 500px;
-            margin: 20px auto;
-            padding: 50px;
-            border: black solid;
-            border-radius: 5px;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        .order-box {
+            width: 500px;
+            margin-bottom: 40px;
+        }
+
+        .price {
+            font-size: 20px;
+        }
+
+        .btn-order {
+            margin: auto;
+            width: 100px;
+            display: block;
+        }
+
+        .rate {
+            color: blue;
         }
     </style>
     <script>
+
         $(document).ready(function () {
-            showArticles();
+            get_rate();
+            listing();
         });
 
-        function openClose() {
-            if ($("#post-box").css("display") == "block") {
-                $("#post-box").hide();
-                $("#btn-post-box").text("포스팅 박스 열기");
-            } else {
-                $("#post-box").show();
-                $("#btn-post-box").text("포스팅 박스 닫기");
-            }
-        }
-
-        function postArticle() {
-            let url = $('#post-url').val()
-            let commnet = $('#post-comment').val()
-
-            $.ajax({
-                type: "POST",
-                url: "/memo",
-                data: {url_give: url, comment_give: commnet},
-                success: function (response) { // 성공하면
-                    alert(response["msg"]);
-                    window.location.reload()
-                }
-            })
-        }
-
-        function showArticles() {
+        function listing(){
             $.ajax({
                 type: "GET",
-                url: "/memo",
+                url: "/order",
                 data: {},
-                success: function (response) {
-                    let articles = response['all_articles']
-                    for (let i = 0; i < articles.length; i++) {
-                        let title = articles[i]['title']
-                        let image = articles[i]['image']
-                        let url = articles[i]['url']
-                        let desc = articles[i]['desc']
-                        let comment = articles[i]['comment']
-
-                        let temp_html = `<div class="card">
-                                            <img class="card-img-top"
-                                                 src="${image}"
-                                                 alt="Card image cap">
-                                            <div class="card-body">
-                                                <a target="_blank" href=${url} class="card-title">${title}</a>
-                                                <p class="card-text">${desc}</p>
-                                                <p class="card-text comment">${comment}</p>
-                                            </div>
-                                        </div>`
-                        $('#cards-box').append(temp_html)
-
+                success: function (response) { // 성공하면
+                    if(response["result"] == "success") {
+                        let orders = response['orders'];
+                        console.log(orders)
                     }
                 }
             })
         }
-    </script>
 
+        function get_rate() {
+            // 주문목록 보기 API 연결
+						$.ajax({
+                type: "GET",
+                url: "https://api.manana.kr/exchange/rate.json",
+                data: {},
+                success: function (response) {
+                    let now_rate = response[i]['rate'];
+                    $('#now_rate').text(now_rate);
+                }
+            })
+        }
+
+        function order() {
+            let name = $('#order-name').val();
+            let count = $('#order-count').val();
+            let address = $('#order-address').val();
+            let phone = $('#order-phone').val();
+
+            // 주문하기 API 연결
+            $.ajax({
+                type: "POST",
+                url: "/order",
+                data: {name_give:name, count_give:count, address_give:address, phone_give:phone },
+                success: function (response) { // 성공하면
+                    alert(response["msg"]);
+                    window.location.reload();
+                }
+            })
+        }
+    </script>
 </head>
 
 <body>
-<div class="wrap">
-    <div class="jumbotron">
-        <h1 class="display-4">나홀로 링크 메모장!</h1>
-        <p class="lead">중요한 링크를 저장해두고, 나중에 볼 수 있는 공간입니다</p>
-        <hr class="my-4">
-        <p class="lead">
-            <button onclick="openClose()" id="btn-post-box" type="button" class="btn btn-primary">포스팅 박스 열기
-            </button>
-        </p>
+<div class="sell">
+    <div class="mytitle"></div>
+    <div class="img_text">
+        <h1>책을 팝니다<span class="price">가격은 13000W</span></h1>
+        <p>이책을 열심히 배우면 자바를 마스터할 수 있어요</p>
+        <p class="rate">달러 원 환율:<span id="now_rate">1291.25</span></p>
     </div>
-    <div id="post-box" class="form-post" style="display:none">
-        <div>
-            <div class="form-group">
-                <label for="post-url">아티클 URL</label>
-                <input id="post-url" class="form-control" placeholder="">
+    <div class="order-box">
+        <div class="input-group mb-3">
+            <div class="input-group-prepend">
+                <span class="input-group-text">주문자이름</span>
             </div>
-            <div class="form-group">
-                <label for="post-comment">간단 코멘트</label>
-                <textarea id="post-comment" class="form-control" rows="2"></textarea>
-            </div>
-            <button type="button" class="btn btn-primary" onclick="postArticle()">기사저장</button>
+            <input type="text" class="form-control" aria-label="Default" aria-describedby="inputGroup-sizing-default">
         </div>
+        <div class="input-group mb-3">
+            <div class="input-group-prepend">
+                <label class="input-group-text" for="inputGroupSelect01">수량</label>
+            </div>
+            <select class="order-count" id="inputGroupSelect01">
+                <option selected>-- 수량을 선택하세요 --</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+            </select>
+        </div>
+        <div class="input-group mb-3">
+            <div class="input-group-prepend">
+                <span class="input-group-text">주소</span>
+            </div>
+            <input id="order-address" type="text" class="form-control" aria-label="Default" aria-describedby="inputGroup-sizing-default">
+        </div>
+        <div class="input-group mb-3">
+            <div class="input-group-prepend">
+                <span class="input-group-text">전화번호</span>
+            </div>
+            <input type="text" class="form-control" aria-label="Default" aria-describedby="inputGroup-sizing-default">
+        </div>
+        <button type="button" onclick="order()" class="btn btn-primary btn-order">주문하기</button>
     </div>
-    <div id="cards-box" class="card-columns">
-
-    </div>
+    <table class="table">
+		  <thead>
+		    <tr>
+		      <th scope="col">이름</th>
+		      <th scope="col">수량</th>
+		      <th scope="col">주소</th>
+		      <th scope="col">전화번호</th>
+		    </tr>
+		  </thead>
+		  <tbody>
+		    <tr>
+		      <th scope="row">홍길동</th>
+		      <td>1</td>
+		      <td>서울시 동작구</td>
+		      <td>010-1234-5678</td>
+		    </tr>
+		    <tr>
+		      <th scope="row">신사임당</th>
+		      <td>2</td>
+		      <td>서울시 영등포구</td>
+		      <td>010-1234-5678</td>
+		    </tr>
+		    <tr>
+		      <th scope="row">장영실</th>
+		      <td>1</td>
+		      <td>부산시 중구</td>
+		      <td>010-1234-5678</td>
+		    </tr>
+		  </tbody>
+		</table>
 </div>
 </body>
 
